@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip Card Questionnaire</title>
+ <style>
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@800&display=swap');
+
+ body {
+     font-family:"Calibri", sans-serif;
+     font-optical-sizing: auto;
+     font-weight: bold;
+     font-size: calc(25px + 0.5vw);
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     min-height: 100vh;
+     margin: 0;
+    background-image: url('https://i.redd.it/4vztk5m7p9651.jpg');
+    background-size: cover; /* Ensures the background covers the entire element */
+    background-position: top center; /* Aligns the image to the top center */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    width: 100%; /* Full width */
+    height: 100vh; /* Full viewport height, adjust as needed */
+    position: relative; /* Necessary if you have positioned children */
+    position: relative;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+     text-rendering: optimizeLegibility;
+}
+ @media (max-width: 425px) {
+     body {
+         font-size: calc(18px + 0.2vw);
+         line-height: 95%;
+    }
+}
+ .flip-card {
+     position: relative;
+     width: 750px;
+     height: 500px;
+    /* Increased height for better question alignment */
+     perspective: 1000px;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+}
+ .flip-card-inner {
+     width: 100%;
+     height: 100%;
+     transition: transform 0.3s;
+     transform-style: preserve-3d;
+}
+ .flipped {
+     transform: rotateX(180deg);
+}
+ .flip-card-front, .flip-card-back {
+     width: 100%;
+     height: 100%;
+     position: absolute;
+     backface-visibility: hidden;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     padding: 20px;
+     box-sizing: border-box;
+     border: 3px solid #000;
+     border-radius: 0px;
+     background-color: rgba(255, 255, 255, 0.888);
+}
+ .flip-card-back {
+     transform: rotateX(180deg);
+}
+ #prevBtn, #nextBtn, #toggleBtn, #myApp_openBtn {
+     background-color: #fff;
+     border: 3px solid #000;
+     color: #000;
+     font-family:"Calibri", sans-serif;
+     font-optical-sizing: auto;
+     font-weight: bold;
+     font-size: calc(23px + 0.5vw);
+     padding: 10px 10px;
+     text-align: center;
+     text-decoration: none;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+     text-rendering: optimizeLegibility;
+     display: inline-block;
+}
+
+ #myApp_closeBtn {
+     background-color: #fff;
+     border: 3px solid #000;
+     color: #000;
+     font-family:"Calibri", sans-serif;
+     font-optical-sizing: auto;
+     font-weight: bold;
+     font-size: calc(2px + 0.5vw);
+     padding: 1px 1px;
+     text-align: center;
+     text-decoration: none;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+     text-rendering: optimizeLegibility;
+     display: inline-block;
+}
+ #btn-container {
+     position: absolute;
+     bottom: 10px;
+     left: 50%;
+     transform: translateX(-50%);
+     text-align: center;
+}
+ @media (max-width: 425px) {
+     #btn-container {
+         position: fixed;
+         bottom: 0;
+         right: 0;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+    }
+     #prevBtn, #nextBtn, #toggleBtn {
+         background-color: #fff;
+         border: 3px solid #000;
+         font-size: calc(16px + 0.5vw);
+         font-weight: bold;
+         color: #000;
+    }
+     #btn-container button {
+         width: 100vw;
+         margin: 2px 0px;
+    }
+}
+ .underscore {
+     font-family:"Calibri", sans-serif;
+     color: #000;
+}
+ .answer {
+     background-color: #66ff66;
+     display: inline;
+}
+ markA {
+     background-color: #87ff2a;
+     display: inline;
+}
+ markB {
+     background-color: #ff6eff;
+     display: inline;
+}
+ markC {
+     background-color: #ccff00;
+     display: inline;
+}
+ b {
+     font-weight: bold;
+     background-color: #fdff32;
+}
+ b2 {
+     font-weight: bold;
+     background-color: #e9ff32;
+}
+ b3 {
+     font-weight: bold;
+     background-color: #ccff00;
+}
+#dynamicVideo {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  z-index: -999;
+}
+</style>
+
+</head>
+<body>
+
+      <div class="overlay" id="overlay"></div>
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <p>Click to flip and reveal the question.</p>
+          </div>
+          <div class="flip-card-back">
+            <p>This is the answer to the question.</p>
+          </div>
+        </div>
+      </div>
+      <div id="btn-container">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn" onclick="pullImage()">Next</button>
+        <button id="toggleBtn">Toggle</button><br>
+      </div>
+      <div id="imageContainer"></div>
+      <div id="imageInfo"></div>
+      <div class="overlay" id="overlay"></div>
+
+<script>
+  const questions = [
+    {
+     question: "_____ Start",
+
+     answer: "_____ End",
+    },
+
+{ question: 'Traditionally, <b>entrepreneurship</b> has been related with launching ___.',
+
+answer: 'new businesses' },
+
+{ question: 'an important <b>life skill</b>...beyond just starting a venture.',
+
+answer: 'entrepreneurship' },
+
+{ question: '<b>Entrepreneurship</b> is composed of ___ (2).',
+
+answer: 'collective mindsets</br>Skillsets' },
+
+{ question: 'two ways/views of thinking about entrepreneurship:',
+
+answer: 'Predictive approach</br>Creation approach' },
+
+{ question: 'a <b2>linear process</b2> where there are steps to do...results are usually <b>predictable</b>.',
+
+answer: 'Predictive approach' },
+
+{ question: 'Sees entrepreneurship as a <b>mindset</b> and a <b2>method</b2> that needs <b3>practice</b3></br>Used only when the future is <b>unpredictable</b> and not certain.',
+
+answer: 'Creation approach' },
+
+{ question: '___ entrepreneurship is supported by the <b>predictive approach</b>.',
+
+answer: 'Traditional' },
+
+{ question: 'Approach used by most well-known and established companies.',
+
+answer: 'Predictive approach' },
+
+{ question: 'define goals based from the <b>resources available at hand</b>. Does <b3>not delay the action</b3> to take despite scarcity of resources.',
+
+answer: 'Creation approach' },
+
+{ question: 'Approach used by most entrepreneurs.',
+
+answer: 'Creation approach' },
+
+{ question: 'The Skills Important in Entrepreneurship (CREEP):',
+
+answer: 'Creativity</br>Reflection</br>Experimentation</br>Empathy</br>Play' },
+
+{ question: 'the <b>skill</b> of usually allowing <b3>imagination to explore</b3>.',
+
+answer: 'play' },
+
+{ question: 'exposes mind to a <b2>treasure of opportunities and potentials</b2> and is very <b3>innovative</b3>.',
+
+answer: 'play' },
+
+{ question: 'well-known <b3>child psychologist</b3>...had been commending the benefits of <b>play</b>.',
+
+answer: 'Piaget' },
+
+{ question: 'the <b2>skill</b2> that calls for entrepreneurs <b>to act so as to learn</b>.',
+
+answer: 'experimentation' },
+
+{ question: 'means <b>attempting to do something</b>, learning from such attempts...',
+
+answer: 'Acting to learn' },
+
+{ question: 'in entrepreneurship refers to <b>making action</b>.',
+
+answer: 'experimentation' },
+
+{ question: 'Most new products and/or services undergo ___.',
+
+answer: 'experimentation' },
+
+{ question: '<b3>New products</b3> usually need to be evaluated for ___.',
+
+answer: 'viability' },
+
+{ question: 'means being <b>sympathetic</b> with the feeling, situation, purposes, opinions and wants of other people.',
+
+answer: 'Empathy' },
+
+{ question: 'It is significant to <b>completely understand the reality</b> of becoming an entrepreneur.',
+
+answer: 'Empathy' },
+
+{ question: 'needed when <b>evaluating oneself</b>...',
+
+answer: 'Empathy' },
+
+{ question: 'The <b3>skill</b3> that means being <b>open-minded</b> and letting loose ones <b2>ability to create</b2>, discover opportunities and resolve problems.',
+
+answer: 'creativity ' },
+
+{ question: 'Could only be successful based on the amount of resources at hand, the capability to cooperate rather than compete...',
+
+answer: 'Creating opportunities' },
+
+{ question: 'To <b>make sense</b> of the previously discussed skills, an entrepreneur should develop the skill of ___.',
+
+answer: 'Reflection' },
+
+{ question: 'organizes all the four skills.',
+
+answer: 'Reflection' },
+
+{ question: '___ the <b>most vital</b> skill of all skills.',
+
+answer: 'Taking time to reflect/Reflection' },
+
+{ question: '<b3>Essential and beneficial but not practiced</b3> very often. Only few people do because they do not really know how.',
+
+answer: 'Reflection' },
+
+{ question: 'ways to do <b>Reflection</b> (PENACE):',
+
+answer: 'Perceptive</br>Evaluative</br>Narrative</br>Analytical</br>Critical</br>Emotional' },
+
+{ question: 'describing <b>what happened</b> in terms of <b3>what took place</b3>, <b2>what was said</b2> and the people involved.',
+
+answer: 'Narrative' },
+
+{ question: 'Centers on the <b>feelings</b> and the management of these feelings.',
+
+answer: 'Emotional' },
+
+{ question: 'focuses on ones <b>insights and feedbacks</b> as well as the others.',
+
+answer: 'Perceptive' },
+
+{ question: '<b3>Rationalizing</b3> about skills and understanding obtained from an experience.',
+
+answer: 'Analytical' },
+
+{ question: 'what <b>went well</b> as well as what <b3>went bad</b3>.',
+
+answer: 'Evaluative' },
+
+{ question: 'considering the <b>role played</b> in a situation, the <b3>approach applied</b3>, what could still might be done.',
+
+answer: 'Critical' },
+
+{ question: 'a <b>new company</b> that is just starting to progress and looking for a feasible business model.',
+
+answer: 'startup' },
+
+{ question: 'are typically <b>small</b> and primarily funded and operated by a <b3>few founders</b3> or one person.',
+
+answer: 'startup' },
+
+{ question: 'Entrepreneurial <b3>life skills</b3> (MRPARN):',
+
+answer: 'Mindfulness</br> Resilience</br>Problem solving</br>Agility</br>Relationship building</br>Negotiating' },
+
+{ question: 'being able to <b>deal with setbacks</b> through <b3>bouncing back</b3> and refocus after failure.',
+
+answer: 'Resilience' },
+
+{ question: '<b>Responding speedily</b> and conclusively to adjust to dynamic changing.',
+
+answer: 'Agility' },
+
+{ question: '<b>Setting boundaries</b>, ensuring for a good relationship.',
+
+answer: 'Negotiating' },
+
+{ question: '<b>Creating solutions</b> from minor technical difficulties.',
+
+answer: 'Problem solving' },
+
+{ question: 'the <b>give and take relationship</b> of the entrepreneur with others.',
+
+answer: 'Relationship building' },
+
+{ question: 'ability to <b>disconnect from the pressure</b> and <b2>focus</b2> on being in the moment.',
+
+answer: 'Mindfulness' },
+
+{ question: 'Types of Entrepreneurship:',
+
+answer: 'Intrapreneurship</br> (Buying a) Small Business</br> Entrepreneurs Inside</br> Social Entrepreneurship</br> (Buying a) Franchise</br> Family Business</br> Serial Entrepreneurs' },
+
+{ question: 'encouraging people to <b>discover high-risk</b>, <b3>high-reward</b3> concepts.',
+
+answer: 'Intrapreneurship' },
+
+{ question: 'made the original template for Gmail specifically the search function.',
+
+answer: 'Paul Buchheit' },
+
+{ question: 'a type of <b>license</b> bought from an existing branded business.',
+
+answer: 'franchise' },
+
+{ question: 'pursuing <b3>innovative applications</b3> that have the likelihood of <b>solving community-based problems</b>.',
+
+answer: 'Social Entrepreneurship' },
+
+{ question: 'owned and managed by <b>members of the family</b> that is usually handed down from generation to generation.',
+
+answer: 'Family Business' },
+
+{ question: 'an entrepreneur who constantly crops up with <b>fresh ideas</b> and starts <b2>new businesses</b2>.',
+
+answer: 'Serial Entrepreneurs' },
+
+{ question: 'sees <b>entrepreneurship as a mindset and a method that needs practice</b>.',
+
+answer: 'Creation approach' },
+
+{ question: 'used only when the future is <b>unpredictable</b> and not certain.',
+
+answer: 'Creation approach' },
+
+{ question: 'Solution to poverty through</br><b>job formation</b></br><b2>wealth creation</b2></br><b3>social empowerment</b3>.',
+
+answer: 'Entrepreneurship' },
+
+{ question: 'identifies entrepreneurship as an <b>instrument of economic growth</b>.',
+
+answer: '1987 Philippine Constitution' },
+
+{ question: 'Article of 1987 Philippine Constitution.',
+
+answer: 'Article XII Section 1' },
+
+{ question: 'Created <b3>Go Negosyo</b3> communities everywhere.',
+
+answer: 'Philippine Center for Entrepreneurship (PCE)' },
+
+{ question: 'Formed the PCE.',
+
+answer: 'Philippine Chamber of Commerce & Industry' },
+
+{ question: 'Entrepreneurship as a method <b2>effectual principles</b2>:',
+
+answer: 'Bird in Hand</br>Affordable Loss</br>Crazy Quilt</br>Lemonade</br>Pilot in The Plane' },
+
+{ question: '<b>Entrepreneurship method</b> is both ___(2).',
+
+answer: 'a mindset and a practice' },
+
+{ question: 'principle of effectuation means <b3>creating solutions using the resources available</b3> instead of having goals in mind.',
+
+answer: 'Bird in Hand' },
+
+{ question: 'In order to <b2>limit the disadvantage risk</b2>, an entrepreneur should define his ___.',
+
+answer: 'Affordable loss' },
+
+{ question: 'means only <b>investing much</b> that an entrepreneur is willing and <b3>can afford to lose</b3>.',
+
+answer: 'Affordable loss' },
+
+{ question: '<b3>Entering into new partnerships</b3> that can bring in new opportunities and reduces uncertainty.',
+
+answer: 'Crazy Quilt' },
+
+{ question: 'Possibility that entrepreneurs shall <b>encounter mistakes and meet surprises</b>.',
+
+answer: 'Lemonade' },
+];
+
+for (let i = 0; i < questions.length; i++) {
+  questions[i].question = capitalizeFirstLetter(questions[i].question);
+  questions[i].answer = capitalizeFirstLetter(questions[i].answer);
+}
+
+function capitalizeFirstLetter(sentence) {
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}
+
+let shuffledQuestions = shuffleArray(questions.slice()); // Copy and shuffle the array
+let currentQuestionIndex = 0;
+let randomOrder = true;
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function getNextQuestion() {
+  if (randomOrder) {
+    if (currentQuestionIndex >= shuffledQuestions.length) {
+      shuffledQuestions = shuffleArray(questions.slice()); // Shuffle again if all questions shown
+      currentQuestionIndex = 0;
+    }
+    return shuffledQuestions[currentQuestionIndex++];
+  } else {
+    return questions[currentQuestionIndex++ % questions.length];
+  }
+}
+
+const flipCardInner = document.querySelector('.flip-card-inner');
+const flipCardFront = document.querySelector('.flip-card-front');
+const flipCardBack = document.querySelector('.flip-card-back');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const toggleBtn = document.getElementById('toggleBtn');
+
+prevBtn.addEventListener('click', () => {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    showCurrentQuestion();
+  }
+});
+
+nextBtn.addEventListener('click', () => {
+  const randomQuestion = getNextQuestion();
+  showCurrentQuestion();
+});
+
+toggleBtn.addEventListener('click', () => {
+  toggleRandomOrder();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.keyCode === 13) {
+    toggleRandomOrder();
+  }
+});
+
+function toggleRandomOrder() {
+  randomOrder = !randomOrder;
+  toggleBtn.textContent = randomOrder ? 'Random' : 'Sequence';
+}
+
+flipCardFront.addEventListener('click', () => {
+  flipCardInner.classList.add('flipped');
+});
+
+flipCardBack.addEventListener('click', () => {
+  flipCardInner.classList.remove('flipped');
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowLeft') {
+    // Navigate to the previous question
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+      showCurrentQuestion();
+    }
+  } else if (event.key === 'ArrowRight') {
+    // Navigate to the next question
+    const randomQuestion = getNextQuestion();
+    showCurrentQuestion();
+    pullImage();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowDown') {
+    // Navigate to the front of the card
+    flipCardInner.classList.remove('flipped');
+  } else if (event.key === 'ArrowUp') {
+    // Navigate to the back of the card
+    flipCardInner.classList.add('flipped');
+  }
+});
+
+function showCurrentQuestion() {
+  const currentQuestion = randomOrder ?
+    shuffledQuestions[currentQuestionIndex] :
+    questions[currentQuestionIndex % questions.length];
+
+  flipCardFront.innerHTML = `<p>${currentQuestion.question}</p>`;
+  flipCardBack.innerHTML = `<p>${currentQuestion.answer}</p>`;
+  flipCardInner.classList.remove('flipped');
+}
+
+showCurrentQuestion();
+</script>
+
+</body>
+</html>
